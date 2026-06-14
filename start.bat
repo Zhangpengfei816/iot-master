@@ -15,7 +15,7 @@ if not exist "%DATADIR%" mkdir "%DATADIR%"
 if not exist "%LOGDIR%" mkdir "%LOGDIR%"
 
 echo [1/2] Starting MongoDB...
-start "" /B "%MONGODIR%\mongod.exe" --dbpath "%DATADIR%" --logpath "%LOGDIR%\mongodb.log" --bind_ip 127.0.0.1 --port 27017
+start "" /B "%MONGODIR%\mongod.exe" --dbpath "%DATADIR%" --logpath "%LOGDIR%\mongodb.log" --bind_ip 127.0.0.1 --port 27018
 
 ping 127.0.0.1 -n 4 > nul
 
