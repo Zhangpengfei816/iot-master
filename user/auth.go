@@ -31,7 +31,7 @@ func auth(ctx *gin.Context) {
 	}
 
 	var obj Password
-	has, err := _passwordTable.Get(user.Id, &obj)
+	has, err := _passwordTable.Get(user.Id.Hex(), &obj)
 	if err != nil {
 		api.Error(ctx, err)
 		return
@@ -48,12 +48,12 @@ func auth(ctx *gin.Context) {
 	}
 
 	//生成Token
-	token, err := web.JwtGenerate(user.Id)
+	token, err := web.JwtGenerate(user.Id.Hex())
 	if err != nil {
 		return
 	}
 
 	api.OK(ctx, gin.H{
-		token: token,
+		"token": token,
 	})
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/god-jason/bucket/api"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type passwordObj struct {
@@ -29,8 +30,13 @@ func password(ctx *gin.Context) {
 	}
 
 	if !has {
+		oid, oidErr := primitive.ObjectIDFromHex(userId)
+		if oidErr != nil {
+			api.Error(ctx, oidErr)
+			return
+		}
 		_, err = _passwordTable.Insert(map[string]any{
-			"_id":      userId,
+			"_id":      oid,
 			"password": obj.New,
 		})
 		if err != nil {

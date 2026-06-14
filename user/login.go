@@ -6,6 +6,7 @@ import (
 	"github.com/god-jason/bucket/api"
 	"github.com/god-jason/bucket/config"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type loginObj struct {
@@ -34,10 +35,18 @@ func login(ctx *gin.Context) {
 	if len(users) == 0 {
 		//管理员自动创建
 		if obj.Username == "admin" {
-			user.Name = "管理员"
-			user.Admin = true
+			user = &User{
+				Name:     "管理员",
+				Username: obj.Username,
+				Admin:    true,
+			}
 
-			user.Id, err = _table.Insert(&user)
+			idHex, err := _table.Insert(user)
+			if err != nil {
+				api.Error(ctx, err)
+				return
+			}
+			user.Id, err = primitive.ObjectIDFromHex(idHex)
 			if err != nil {
 				api.Error(ctx, err)
 				return
@@ -56,7 +65,7 @@ func login(ctx *gin.Context) {
 	}
 
 	var password Password
-	has, err := _passwordTable.Get(user.Id, &password)
+	has, err := _passwordTable.Get(user.Id.Hex(), &password)
 	if err != nil {
 		api.Error(ctx, err)
 		return
@@ -67,7 +76,7 @@ func login(ctx *gin.Context) {
 		dp := config.GetString(MODULE, "default_password")
 		password.Password = passwordHash(dp)
 
-		//写入数据库
+		//写入数据库。_id 使用与 user 相同的 ObjectID
 		_, err = _passwordTable.Insert(map[string]any{
 			"_id":      user.Id,
 			"password": passwordHash(dp),
@@ -83,10 +92,8 @@ func login(ctx *gin.Context) {
 		return
 	}
 
-	//_, _ = db.Engine.InsertOne(&types.UserEvent{UserId: user.id, ModEvent: types.ModEvent{Type: "登录"}})
-
-	//存入session
-	session.Set("user", user.Id)
+	//存入session。session 中只保存字符串形式的 ObjectID hex
+	session.Set("user", user.Id.Hex())
 	_ = session.Save()
 
 	api.OK(ctx, user)
