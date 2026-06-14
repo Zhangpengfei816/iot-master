@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Subject} from "rxjs";
+import {HttpClient} from "@angular/common/http";
 import {SmartRequestService} from "@god-jason/smart";
 
 @Injectable({
@@ -12,25 +13,25 @@ export class UserService {
 
     public getting = true;
 
-    constructor(private rs: SmartRequestService) {
-        //console.log("user me")
-        rs.get('me').subscribe({
-            next: res => {
-                //console.log("user me ok")
-                this.setUser(res.data);
+    constructor(private rs: SmartRequestService, private http: HttpClient) {
+        http.get('/api/me', {withCredentials: true}).subscribe({
+            next: (res: any) => {
+                if (res && res.data) {
+                    this.setUser(res.data);
+                    this.userSub.next(res.data);
+                } else {
+                    this.userSub.next(null);
+                }
             }, error: err => {
-                //console.error('user.service.error', err)
-                this.userSub.error(err)
+                this.userSub.next(null);
             }
         }).add(() => {
-            //console.log('getting false')
             this.getting = false;
         })
     }
 
     setUser(user: any) {
         this.user = user;
-        this.userSub.next(user);
     }
 
     getUser() {

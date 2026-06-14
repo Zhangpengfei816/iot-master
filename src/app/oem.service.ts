@@ -23,11 +23,15 @@ export class OemService {
             this.title.setTitle(oem.title)
         }
 
-        rs.get('oem').subscribe(res => {
-            let oem = res.data;
-            localStorage.setItem("oem", JSON.stringify(oem));
-            Object.assign(this.oem, oem)
-            this.title.setTitle(oem.title)
+        rs.get('oem').subscribe({
+            next: res => {
+                let oem = res.data;
+                localStorage.setItem("oem", JSON.stringify(oem));
+                Object.assign(this.oem, oem);
+                this.title.setTitle(oem.title);
+            },
+            error: () => {
+            }
         })
     }
 
