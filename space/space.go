@@ -6,13 +6,14 @@ import (
 	"github.com/god-jason/bucket/table"
 	"github.com/zgwit/iot-master/v5/base"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Space struct {
-	Id        string `json:"_id" bson:"_id"`
-	ProjectId string `json:"project_id" bson:"project_id"`
-	Name      string `json:"name"`
-	Disabled  bool   `json:"disabled"`
+	Id        primitive.ObjectID `json:"_id" bson:"_id"`
+	ProjectId primitive.ObjectID `json:"project_id" bson:"project_id"`
+	Name      string             `json:"name"`
+	Disabled  bool               `json:"disabled"`
 
 	running bool
 
@@ -45,7 +46,7 @@ func (s *Space) Devices(productId string) (ids []string, err error) {
 func (s *Space) OnDeviceValuesChange(product, device string, values map[string]any) {
 	for w, _ := range s.valuesWatchers {
 		_ = pool.Insert(func() {
-			w.OnSpaceValuesChange(s.Id, product, device, values)
+			w.OnSpaceValuesChange(s.Id.Hex(), product, device, values)
 		})
 	}
 }

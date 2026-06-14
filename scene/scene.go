@@ -8,6 +8,7 @@ import (
 	"github.com/zgwit/iot-master/v5/device"
 	"github.com/zgwit/iot-master/v5/project"
 	"github.com/zgwit/iot-master/v5/space"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
 )
 
@@ -19,11 +20,11 @@ type Time struct {
 
 // Scene 联动场景
 type Scene struct {
-	Id        string  `json:"_id" bson:"_id"`
-	ProjectId string  `json:"project_id" bson:"project_id"`
-	SpaceId   string  `json:"space_id" bson:"space_id"`
-	Name      string  `json:"name"`
-	Times     []*Time `json:"times,omitempty"`
+	Id        primitive.ObjectID `json:"_id" bson:"_id"`
+	ProjectId primitive.ObjectID `json:"project_id" bson:"project_id"`
+	SpaceId   primitive.ObjectID `json:"space_id" bson:"space_id"`
+	Name      string             `json:"name"`
+	Times     []*Time            `json:"times,omitempty"`
 
 	Condition //组合条件
 
@@ -35,16 +36,16 @@ type Scene struct {
 }
 
 func (s *Scene) Open() error {
-	if s.SpaceId != "" {
-		spc := space.Get(s.SpaceId)
+	if s.SpaceId != primitive.NilObjectID {
+		spc := space.Get(s.SpaceId.Hex())
 		if spc != nil {
 			spc.WatchValues(s)
 			s.deviceContainer = spc
 		} else {
 			return exception.New("找不到空间")
 		}
-	} else if s.ProjectId != "" {
-		prj := project.Get(s.ProjectId)
+	} else if s.ProjectId != primitive.NilObjectID {
+		prj := project.Get(s.ProjectId.Hex())
 		if prj != nil {
 			prj.WatchValues(s)
 			s.deviceContainer = prj
@@ -79,14 +80,14 @@ func (s *Scene) Open() error {
 func (s *Scene) Close() error {
 	s.last = false
 
-	if s.SpaceId != "" {
-		spc := space.Get(s.SpaceId)
+	if s.SpaceId != primitive.NilObjectID {
+		spc := space.Get(s.SpaceId.Hex())
 		if spc != nil {
 			spc.UnWatchValues(s)
 		}
 	}
-	if s.ProjectId != "" {
-		prj := project.Get(s.ProjectId)
+	if s.ProjectId != primitive.NilObjectID {
+		prj := project.Get(s.ProjectId.Hex())
 		if prj != nil {
 			prj.UnWatchValues(s)
 		}

@@ -10,6 +10,7 @@ import (
 	"github.com/zgwit/iot-master/v5/device"
 	"github.com/zgwit/iot-master/v5/project"
 	"github.com/zgwit/iot-master/v5/space"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"strconv"
 	"strings"
 	"time"
@@ -17,14 +18,14 @@ import (
 
 // Timer 定时场景
 type Timer struct {
-	Id        string         `json:"_id" bson:"_id"`
-	ProjectId string         `json:"project_id" bson:"project_id"`
-	SpaceId   string         `json:"space_id" bson:"space_id"`
-	Name      string         `json:"name"`
-	Clock     int            `json:"clock"`   //启动时间 每天的分钟 1440
-	Weekday   []int          `json:"weekday"` //0 1 2 3 4 5 6
-	Actions   []*base.Action `json:"actions"` //动作
-	Disabled  bool           `json:"disabled"`
+	Id        primitive.ObjectID `json:"_id" bson:"_id"`
+	ProjectId primitive.ObjectID `json:"project_id" bson:"project_id"`
+	SpaceId   primitive.ObjectID `json:"space_id" bson:"space_id"`
+	Name      string             `json:"name"`
+	Clock     int                `json:"clock"`   //启动时间 每天的分钟 1440
+	Weekday   []int              `json:"weekday"` //0 1 2 3 4 5 6
+	Actions   []*base.Action     `json:"actions"` //动作
+	Disabled  bool               `json:"disabled"`
 
 	deviceContainer base.DeviceContainer
 	entry           cron.EntryID
@@ -32,15 +33,15 @@ type Timer struct {
 
 func (s *Timer) Open() (err error) {
 
-	if s.SpaceId != "" {
-		spc := space.Get(s.SpaceId)
+	if s.SpaceId != primitive.NilObjectID {
+		spc := space.Get(s.SpaceId.Hex())
 		if spc != nil {
 			s.deviceContainer = spc
 		} else {
 			return exception.New("找不到空间")
 		}
-	} else if s.ProjectId != "" {
-		prj := project.Get(s.ProjectId)
+	} else if s.ProjectId != primitive.NilObjectID {
+		prj := project.Get(s.ProjectId.Hex())
 		if prj != nil {
 			s.deviceContainer = prj
 		} else {

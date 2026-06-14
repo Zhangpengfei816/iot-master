@@ -6,12 +6,13 @@ import (
 	"github.com/god-jason/bucket/table"
 	"github.com/zgwit/iot-master/v5/base"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Project struct {
-	Id       string `json:"_id" bson:"_id"`
-	Name     string `json:"name"`
-	Disabled bool   `json:"disabled"`
+	Id       primitive.ObjectID `json:"_id" bson:"_id"`
+	Name     string             `json:"name"`
+	Disabled bool               `json:"disabled"`
 
 	running bool
 
@@ -48,7 +49,7 @@ func (p *Project) Devices(productId string) (ids []string, err error) {
 func (p *Project) OnDeviceValuesChange(product, device string, values map[string]any) {
 	for w, _ := range p.valuesWatchers {
 		_ = pool.Insert(func() {
-			w.OnProjectValuesChange(p.Id, product, device, values)
+			w.OnProjectValuesChange(p.Id.Hex(), product, device, values)
 		})
 	}
 }
