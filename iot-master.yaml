@@ -1,0 +1,42 @@
+data: data
+database:
+    auth: ""
+    database: bucket
+    password: ""
+    url: mongodb://localhost:27018
+    username: ""
+log:
+    caller: true
+    compress: true
+    filename: log.txt
+    level: trace
+    max_age: 30
+    max_backups: 3
+    max_size: 10
+    output: stdout
+    text: true
+pool:
+    size: 10000
+service:
+    arguments: []
+    description: 物联网数据中台
+    display: 物联大师
+    name: iot-master
+timezone: Asia/Shanghai
+user:
+    default_password: "123456"
+    password_hash: md5
+    password_suffix: ""
+web:
+    cert: ""
+    cors: false
+    debug: false
+    email: ""
+    gzip: true
+    hosts: []
+    https: ""
+    id: xid
+    jwt_expire: 720
+    jwt_key: $bucket$
+    key: ""
+    port: 8888
